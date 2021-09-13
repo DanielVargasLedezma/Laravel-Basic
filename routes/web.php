@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\PagesController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+// Route::get('products/{id}', [PagesController::class, 'showProduct'])->where('id','[0-9]+');
+
+// Route::get('productsName/{name}', [PagesController::class, 'showName'])->where('name','[a-zA-Z]+');
+
+Route::get('/', [PagesController::class, 'index']);
