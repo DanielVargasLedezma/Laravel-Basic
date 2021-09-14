@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PagesController;
 
+use App\Http\Controllers\ArticleController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,4 +25,12 @@ use App\Http\Controllers\PagesController;
 
 // Route::get('productsName/{name}', [PagesController::class, 'showName'])->where('name','[a-zA-Z]+');
 
-Route::get('/', [PagesController::class, 'index']);
+// Route::get('/', [PagesController::class, 'index']);
+
+Route::get('/articles/{last?}', [ArticleController::class, 'getArticles']);
+
+Route::get('/article/{id}', [ArticleController::class, 'getArticle'])->where('id', '[0-9]+');
+
+Route::post('/create-article', [ArticleController::class, 'createArticle']);
+
+Route::delete('/article/{id}', [ArticleController::class, 'deleteArticle'])->where('id', '[0-9]+');
