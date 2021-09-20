@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ArticleController extends Controller
+class ArticlesController extends Controller
 {
     /*
     Returns all the articles, if the parameter last is received then return last 5 articles;

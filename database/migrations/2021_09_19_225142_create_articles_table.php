@@ -18,7 +18,12 @@ class CreateArticlesTable extends Migration
             $table->string('title')->nullable();
             $table->longText('content')->nullable();
             $table->string('image')->nullable();
+            $table->bigInteger('user_id')->unsigned();
             $table->timestamps();
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

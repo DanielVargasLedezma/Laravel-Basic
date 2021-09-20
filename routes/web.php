@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PagesController;
 
-use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ArticlesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +27,10 @@ use App\Http\Controllers\ArticleController;
 
 // Route::get('/', [PagesController::class, 'index']);
 
-Route::get('/articles/{last?}', [ArticleController::class, 'getArticles']);
+Route::get('/articles/{last?}', [ArticlesController::class, 'getArticles']);
 
-Route::get('/article/{id}', [ArticleController::class, 'getArticle'])->where('id', '[0-9]+');
+Route::get('/article/{id}', [ArticlesController::class, 'getArticle'])->where('id', '[0-9]+');
 
-Route::post('/create-article', [ArticleController::class, 'createArticle']);
+Route::post('/create-article', [ArticlesController::class, 'createArticle']);
 
-Route::delete('/article/{id}', [ArticleController::class, 'deleteArticle'])->where('id', '[0-9]+');
+Route::delete('/article/{id}', [ArticlesController::class, 'deleteArticle'])->where('id', '[0-9]+');

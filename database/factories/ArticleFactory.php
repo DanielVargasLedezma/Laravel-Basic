@@ -27,6 +27,7 @@ class ArticleFactory extends Factory
             'content' => $this->faker->paragraph(),
             'image' => null,
             'created_at' => now(),
+            'user_id' => 1
         ];
     }
 }
