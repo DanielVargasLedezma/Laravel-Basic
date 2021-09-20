@@ -2,59 +2,130 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Http\Resources\ArticleResource;
 
 class ArticlesController extends Controller
 {
-    /*
-    Returns all the articles, if the parameter last is received then return last 5 articles;
-    It return all of them by the newest to the oldest
-    */
-    public function getArticles($last = null)
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
     {
-        if (!$last) {
-            // $articles = DB::select('select * from articles order by created_at desc');
-            $articles = DB::table('articles')
-                ->latest()
-                ->get();
-
-            dd($articles);
-        } else {
-            $articles = DB::table('articles')
-                ->latest()
-                ->limit(5)
-                ->get();
-
-            dd($articles);
-        }
+        //
     }
 
-    /*
-    Returns the article that has the same id that is received by parameters
-    */
-    public function getArticle($id)
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
     {
-        // $article = DB::select('select * from articles where id = :id', ['id' => $id]);
-
-        $article = DB::table('articles')
-            ->find($id)
-            ->get();
-
-        dd($article);
+        //
     }
 
-    public function createArticle()
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
     {
-        
+        //
     }
 
-    public function deleteArticle($id)
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Article $id)
     {
-        $article = DB::table('articles')
-            ->where('id', $id)
-            ->delete();
+        // if (!isset($id) || !is_numeric($id)) {
+        //     return response(500)->json([]);
+        // }
 
-        dd($article);
+        // $article = Article::find($id);
+
+        // return response()->json([
+        //     'id' => $article->id,
+        //     'type' => 'Articles',
+        //     'attributes' => [
+        //         'title' => $article->title,
+        //         'content' => $article->content,
+        //         'user_id' => $article->user_id,
+        //         'image' => $article->image,
+        //         'created_at' => $article->created_at,
+        //     ],
+        // ]);
+
+        return new ArticleResource($id);
+    }
+
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  anything, if NULL then does not return it capped
+     * @return \Illuminate\Http\Response
+     */
+    public function showMultiple($last = null)
+    {
+        // if (!$last) {
+        //     // $articles = DB::select('select * from articles order by created_at desc');
+        //     $articles = DB::table('articles')
+        //         ->latest()
+        //         ->get();
+
+        //     dd($articles);
+        // } else {
+        //     $articles = DB::table('articles')
+        //         ->latest()
+        //         ->limit(5)
+        //         ->get();
+
+        //     dd($articles);
+        // }
+    }
+
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Article $article)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Article $article)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Article $article)
+    {
+        //
     }
 }
