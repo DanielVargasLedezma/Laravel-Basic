@@ -13,7 +13,7 @@ class Article extends Model
 
     protected $primaryKey = 'id';
 
-    protected $fillable = ['title', 'content', 'image'];
+    protected $fillable = ['title', 'content', 'image', 'user_id'];
 
     protected $hidden = ['updated_at'];
 

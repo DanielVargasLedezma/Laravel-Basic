@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use App\Http\Resources\ArticleResource;
+use App\Http\Requests\ArticlesRequest;
+use App\Http\Requests\ImageRequest;
+use Illuminate\Support\Facades\File;
 
 class ArticlesController extends Controller
 {
@@ -13,9 +16,19 @@ class ArticlesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($last = null)
     {
-        //
+        if(isset($last))
+        {   
+            return ArticleResource::collection(
+                Article::all()->limit(5)
+            );
+        }
+        else{
+            return ArticleResource::collection(
+                Article::all()
+            );
+        }
     }
 
     /**
@@ -34,9 +47,15 @@ class ArticlesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ArticlesRequest $request)
     {
-        //
+        $article = Article::create([
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'user_id' => $request->input('user_id'),
+        ]);
+
+        return new ArticleResource($article);
     }
 
     /**
@@ -45,53 +64,71 @@ class ArticlesController extends Controller
      * @param  \App\Models\Article  $article
      * @return \Illuminate\Http\Response
      */
-    public function show(Article $id)
+    public function show(Article $article)
     {
-        // if (!isset($id) || !is_numeric($id)) {
-        //     return response(500)->json([]);
-        // }
+        if (!isset($article)) {
+            return response(500)->json(null);
+        }
 
-        // $article = Article::find($id);
-
-        // return response()->json([
-        //     'id' => $article->id,
-        //     'type' => 'Articles',
-        //     'attributes' => [
-        //         'title' => $article->title,
-        //         'content' => $article->content,
-        //         'user_id' => $article->user_id,
-        //         'image' => $article->image,
-        //         'created_at' => $article->created_at,
-        //     ],
-        // ]);
-
-        return new ArticleResource($id);
+        return new ArticleResource($article);
     }
 
 
     /**
      * Display the specified resource.
      *
-     * @param  anything, if NULL then does not return it capped
+     * @param  User::class->id
      * @return \Illuminate\Http\Response
      */
-    public function showMultiple($last = null)
+    public function articlesPerUser($user_id)
     {
-        // if (!$last) {
-        //     // $articles = DB::select('select * from articles order by created_at desc');
-        //     $articles = DB::table('articles')
-        //         ->latest()
-        //         ->get();
+        if (!isset($user_id) || !is_numeric($user_id)) 
+        {
+            return response(500)->json([]);
+        }
 
-        //     dd($articles);
-        // } else {
-        //     $articles = DB::table('articles')
-        //         ->latest()
-        //         ->limit(5)
-        //         ->get();
+        return ArticleResource::collection(
+            Article::all()->where('user_id', $user_id)
+                
+        );
+    }
 
-        //     dd($articles);
-        // }
+
+    public function storeImage(ImageRequest $request, Article $article)
+    {
+        if (!isset($article)) {
+            return response(500)->json(null);
+        }
+
+        $request->validated();
+
+        $newImageName = time() . '-' . $request->name . '.' . $request->image->extension();
+
+        $request->image->move(public_path('images'), $newImageName);
+
+        if($article->image)
+        {
+            $path = 'images/' . $article->image;
+            File::delete($path);
+        }
+
+        $article->update([
+            'image' => $newImageName
+        ]);
+
+        return new ArticleResource($article);
+    }
+
+
+    public function getImage(Article $article)
+    {
+        if (!isset($article)) {
+            return response(500)->json(null);
+        }
+
+        $pathToFile = $article->image;
+
+        return response()->download($pathToFile);
     }
 
 
@@ -103,7 +140,7 @@ class ArticlesController extends Controller
      */
     public function edit(Article $article)
     {
-        //
+        return new ArticleResource($article);
     }
 
     /**
@@ -113,9 +150,14 @@ class ArticlesController extends Controller
      * @param  \App\Models\Article  $article
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Article $article)
+    public function update(ArticlesRequest $request, Article $article)
     {
-        //
+        $article->update([
+            'title' => $request->input('title'),
+            'content' => $request->input('content')
+        ]);
+     
+        return new ArticleResource($article);
     }
 
     /**
@@ -126,6 +168,8 @@ class ArticlesController extends Controller
      */
     public function destroy(Article $article)
     {
-        //
+        $article->delete();
+
+        return response(null, 204);
     }
 }

@@ -21,13 +21,22 @@ Route::middleware('auth:api')->prefix('v1')->group(function() {
         return $request->user();
     });
 
-    Route::get('/article/{id}', [ArticlesController::class, 'show']);
+    Route::apiResource('/articles', ArticlesController::class);
+    
+    Route::put('/articles/image/{article}', [ArticlesController::class, 'storeImage']);
 
-    Route::get('/articles/{last?}', [ArticlesController::class, 'showMultiple']);
+    Route::get('/articles/image/{article}', [ArticlesController::class, 'getImage']);
     
-    Route::post('/create-article', [ArticlesController::class, 'createArticle']);
+    Route::get('/articles/user/{user_id}', [ArticlesController::class, 'articlesPerUser']);
     
-    Route::delete('/article/{id}', [ArticlesController::class, 'deleteArticle']);
+
+    // Route::get('/articles/{last?}', [ArticlesController::class, 'index']);
+
+    // Route::get('/article/{id}', [ArticlesController::class, 'show']);  
+    
+    // Route::post('/create-article', [ArticlesController::class, 'createArticle']);
+    
+    // Route::delete('/article/{id}', [ArticlesController::class, 'deleteArticle']);
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
