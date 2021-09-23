@@ -8,6 +8,7 @@ use App\Http\Resources\ArticleResource;
 use App\Http\Requests\ArticlesRequest;
 use App\Http\Requests\ImageRequest;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 class ArticlesController extends Controller
 {
@@ -16,17 +17,29 @@ class ArticlesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($last = null)
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showArticles($last = null)
     {
         if(isset($last))
         {   
             return ArticleResource::collection(
-                Article::all()->limit(5)
+                Article::latest()->limit(5)
+                    ->get()
             );
         }
         else{
             return ArticleResource::collection(
-                Article::all()
+                Article::latest()
+                    ->get()
             );
         }
     }
@@ -67,7 +80,7 @@ class ArticlesController extends Controller
     public function show(Article $article)
     {
         if (!isset($article)) {
-            return response(500)->json(null);
+            return response(null, 400);
         }
 
         return new ArticleResource($article);
@@ -77,14 +90,14 @@ class ArticlesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  User::class->id
+     * @param int $user_id
      * @return \Illuminate\Http\Response
      */
     public function articlesPerUser($user_id)
     {
         if (!isset($user_id) || !is_numeric($user_id)) 
         {
-            return response(500)->json([]);
+            return response(null, 400);
         }
 
         return ArticleResource::collection(
@@ -93,16 +106,46 @@ class ArticlesController extends Controller
         );
     }
 
+    
+    /**
+     * Display the specified resource.
+     *
+     * @param mixed $search
+     * @return \Illuminate\Http\Response
+     */
+    public function search($search)
+    {
+        if (!isset($search)) 
+        {
+            return response(null, 400);
+        }
 
+        return ArticleResource::collection(
+            Article::where('title', 'like', '%'.$search.'%')
+                ->orWhere('content', 'like', '%'.$search.'%')
+                ->get()
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response
+     */
     public function storeImage(ImageRequest $request, Article $article)
     {
         if (!isset($article)) {
-            return response(500)->json(null);
+            return response([
+                'status' => 'error',
+                'errorMessage' => 'There was no id specified' 
+            ], 400);
         }
 
         $request->validated();
 
-        $newImageName = time() . '-' . $request->name . '.' . $request->image->extension();
+        $newImageName = time() . '.' . $request->image->extension();
 
         $request->image->move(public_path('images'), $newImageName);
 
@@ -120,13 +163,30 @@ class ArticlesController extends Controller
     }
 
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response image
+     */
     public function getImage(Article $article)
     {
         if (!isset($article)) {
-            return response(500)->json(null);
+            return response([
+                'status' => 'error',
+                'errorMessage' => 'The article does not exist'
+            ] ,404);
         }
 
-        $pathToFile = $article->image;
+        $pathToFile = 'images/' . $article->image;
+
+        if(!isset($pathToFile))
+        {
+            return response([
+                'status' => 'error',
+                'errorMessage' => 'The image does not exist'
+            ], 404);
+        }
 
         return response()->download($pathToFile);
     }
@@ -168,6 +228,12 @@ class ArticlesController extends Controller
      */
     public function destroy(Article $article)
     {
+        if($article->image)
+        {
+            $path = 'images/' . $article->image;
+            File::delete($path);
+        }
+
         $article->delete();
 
         return response(null, 204);

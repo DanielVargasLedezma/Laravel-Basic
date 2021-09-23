@@ -1,0 +1,4 @@
+This folder must exists in order to have the API working
+
+All images will be allocated here and these ones can't get
+allocated if the folder doesn't exist

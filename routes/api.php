@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,9 +24,15 @@ Route::middleware('auth:api')->prefix('v1')->group(function() {
 
     Route::apiResource('/articles', ArticlesController::class);
     
-    Route::put('/articles/image/{article}', [ArticlesController::class, 'storeImage']);
+    Route::apiResource('/users', UsersController::class);
+    
+    Route::get('/articles-all/{last?}', [ArticlesController::class, 'showArticles']);
+    
+    Route::post('/articles/upload-image/{article}', [ArticlesController::class, 'storeImage']);
 
-    Route::get('/articles/image/{article}', [ArticlesController::class, 'getImage']);
+    Route::get('/articles/get-image/{article}', [ArticlesController::class, 'getImage']);
+    
+    Route::get('/articles/search/{search}', [ArticlesController::class, 'search']);
     
     Route::get('/articles/user/{user_id}', [ArticlesController::class, 'articlesPerUser']);
     
