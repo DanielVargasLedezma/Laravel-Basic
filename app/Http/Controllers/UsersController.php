@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UsersRequest;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller
 {
@@ -35,7 +37,7 @@ class UsersController extends Controller
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
+            'password' => bcrypt($request->input('password')),
         ]);
 
         return new UserResource($user);
@@ -84,5 +86,43 @@ class UsersController extends Controller
         $user->delete();
 
         return response(null, 204);
+    }
+
+    public function login(LoginRequest $request)
+    {
+        $request->validated();
+
+        $user = User::where([
+            ['email', '=' , $request->input('email')],
+            ['password', '=' , bcrypt($request->input('password'))],
+            ])
+            ->get();
+        
+        if($user->isEmpty())
+        {
+            return response([
+                'status' => 'error',
+                'errorMessage' => 'Wrong user or password',
+            ], 400);
+        }
+
+        // $token = $user->createToken(time())->plainTextToken;
+
+        $response = [
+            'data' => new UserResource($user),
+            'token' => $user->tokens()->last(),
+        ];
+
+        return response($response, 201);
+    }
+
+    public function logout(User $user)
+    {
+        $user->tokens()->destroy();
+
+        return response([
+            'status' => 'succeed',
+            'message' => 'Log out'
+        ], 200);
     }
 }

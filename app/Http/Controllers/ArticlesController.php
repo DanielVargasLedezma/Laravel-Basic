@@ -17,17 +17,7 @@ class ArticlesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showArticles($last = null)
+    public function index($last = null)
     {
         if(isset($last))
         {   
@@ -43,6 +33,7 @@ class ArticlesController extends Controller
             );
         }
     }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -175,7 +166,7 @@ class ArticlesController extends Controller
             return response([
                 'status' => 'error',
                 'errorMessage' => 'The article does not exist'
-            ] ,404);
+            ], 404);
         }
 
         $pathToFile = 'images/' . $article->image;

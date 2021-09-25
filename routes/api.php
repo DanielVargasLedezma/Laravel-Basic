@@ -16,19 +16,11 @@ use App\Http\Controllers\UsersController;
 |
 */
 
-Route::middleware('auth:api')->prefix('v1')->group(function() {
+Route::prefix('v1')->group(function() {
     
-    Route::get('/user', function(Request $request) {
-        return $request->user();
-    });
+    Route::get('/articles-all/{last?}', [ArticlesController::class, 'index']);
 
-    Route::apiResource('/articles', ArticlesController::class);
-    
-    Route::apiResource('/users', UsersController::class);
-    
-    Route::get('/articles-all/{last?}', [ArticlesController::class, 'showArticles']);
-    
-    Route::post('/articles/upload-image/{article}', [ArticlesController::class, 'storeImage']);
+    Route::get('/articles/{article}', [ArticlesController::class, 'show']);
 
     Route::get('/articles/get-image/{article}', [ArticlesController::class, 'getImage']);
     
@@ -36,14 +28,38 @@ Route::middleware('auth:api')->prefix('v1')->group(function() {
     
     Route::get('/articles/user/{user_id}', [ArticlesController::class, 'articlesPerUser']);
     
+    Route::post('/users', [UsersController::class, 'store']);
 
-    // Route::get('/articles/{last?}', [ArticlesController::class, 'index']);
+    Route::post('/login', [UsersController::class, 'login']);
+});
 
-    // Route::get('/article/{id}', [ArticlesController::class, 'show']);  
+Route::middleware('auth:sanctum')->prefix('v1')->group(function() {
     
-    // Route::post('/create-article', [ArticlesController::class, 'createArticle']);
+    Route::get('/user', function(Request $request) {
+        return $request->user();
+    });
+
+    // Route::apiResource('/articles', ArticlesController::class);
     
-    // Route::delete('/article/{id}', [ArticlesController::class, 'deleteArticle']);
+    // Route::apiResource('/users', UsersController::class);
+    
+    Route::post('/articles', [ArticlesController::class, 'store']);
+    
+    Route::put('/articles/{article}', [ArticlesController::class, 'update']);
+    
+    Route::post('/articles/upload-image/{article}', [ArticlesController::class, 'storeImage']);
+    
+    Route::delete('/articles/{article}', [ArticlesController::class, 'destroy']);
+  
+    Route::get('/users', [UsersController::class, 'index']);
+
+    Route::get('/users/{user}', [UsersController::class, 'show']);
+
+    Route::put('/users/{user}', [UsersController::class, 'update']);
+
+    Route::delete('/users/{user}', [UsersController::class, 'destroy']);
+
+    Route::post('/logout/{user}', [UsersController::class, 'logout']);
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
