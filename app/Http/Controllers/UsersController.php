@@ -92,37 +92,45 @@ class UsersController extends Controller
     {
         $request->validated();
 
-        $user = User::where([
-            ['email', '=' , $request->input('email')],
-            ['password', '=' , bcrypt($request->input('password'))],
-            ])
-            ->get();
+        $user = User::where('email', $request->input('email'))
+            ->first();
+
+        #    ['password', '=' , bcrypt($request->input('password'))],
         
-        if($user->isEmpty())
+        
+        if(!$user)
         {
             return response([
                 'status' => 'error',
-                'errorMessage' => 'Wrong user or password',
-            ], 400);
+                'errorMessage' => 'There is not any user registered with that email',
+            ], 401);
         }
 
-        // $token = $user->createToken(time())->plainTextToken;
+        if(!Hash::check($request->input('password'), $user->password))
+        {
+            return response([
+                'status' => 'error',
+                'errorMessage' => 'Wrong password',
+            ], 401);
+        }
+
+        $token = $user->createToken(time())->plainTextToken;
 
         $response = [
             'data' => new UserResource($user),
-            'token' => $user->tokens()->last(),
+            'token' => $token,
         ];
 
-        return response($response, 201);
+        return response($response, 200);
     }
 
     public function logout(User $user)
     {
-        $user->tokens()->destroy();
+        $user->tokens()->delete();
 
         return response([
             'status' => 'succeed',
-            'message' => 'Log out'
+            'message' => 'Logged out'
         ], 200);
     }
 }

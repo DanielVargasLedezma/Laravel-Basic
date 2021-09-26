@@ -162,22 +162,23 @@ class ArticlesController extends Controller
      */
     public function getImage(Article $article)
     {
-        if (!isset($article)) {
+        if (!isset( $article)) {
             return response([
                 'status' => 'error',
                 'errorMessage' => 'The article does not exist'
             ], 404);
         }
 
-        $pathToFile = 'images/' . $article->image;
-
-        if(!isset($pathToFile))
+        
+        if(!($article->image))
         {
             return response([
                 'status' => 'error',
                 'errorMessage' => 'The image does not exist'
             ], 404);
         }
+        
+        $pathToFile = 'images/' . $article->image;
 
         return response()->download($pathToFile);
     }
