@@ -19,21 +19,19 @@ class ArticlesController extends Controller
      */
     public function index($last = null)
     {
-        if(isset($last))
-        {   
+        if (isset($last)) {
             return ArticleResource::collection(
                 Article::latest()->limit(5)
                     ->get()
             );
-        }
-        else{
+        } else {
             return ArticleResource::collection(
                 Article::latest()
                     ->get()
             );
         }
     }
-    
+
 
     /**
      * Show the form for creating a new resource.
@@ -86,18 +84,17 @@ class ArticlesController extends Controller
      */
     public function articlesPerUser($user_id)
     {
-        if (!isset($user_id) || !is_numeric($user_id)) 
-        {
+        if (!isset($user_id) || !is_numeric($user_id)) {
             return response(null, 400);
         }
 
         return ArticleResource::collection(
             Article::all()->where('user_id', $user_id)
-                
+
         );
     }
 
-    
+
     /**
      * Display the specified resource.
      *
@@ -106,14 +103,13 @@ class ArticlesController extends Controller
      */
     public function search($search)
     {
-        if (!isset($search)) 
-        {
+        if (!isset($search)) {
             return response(null, 400);
         }
 
         return ArticleResource::collection(
-            Article::where('title', 'like', '%'.$search.'%')
-                ->orWhere('content', 'like', '%'.$search.'%')
+            Article::where('title', 'like', '%' . $search . '%')
+                ->orWhere('content', 'like', '%' . $search . '%')
                 ->get()
         );
     }
@@ -130,7 +126,7 @@ class ArticlesController extends Controller
         if (!isset($article)) {
             return response([
                 'status' => 'error',
-                'errorMessage' => 'There was no id specified' 
+                'errorMessage' => 'There was no id specified'
             ], 400);
         }
 
@@ -140,8 +136,7 @@ class ArticlesController extends Controller
 
         $request->image->move(public_path('images'), $newImageName);
 
-        if($article->image)
-        {
+        if ($article->image) {
             $path = 'images/' . $article->image;
             File::delete($path);
         }
@@ -162,22 +157,21 @@ class ArticlesController extends Controller
      */
     public function getImage(Article $article)
     {
-        if (!isset( $article)) {
+        if (!isset($article)) {
             return response([
                 'status' => 'error',
                 'errorMessage' => 'The article does not exist'
             ], 404);
         }
 
-        
-        if(!($article->image))
-        {
+
+        if (!($article->image)) {
             return response([
                 'status' => 'error',
                 'errorMessage' => 'The image does not exist'
             ], 404);
         }
-        
+
         $pathToFile = 'images/' . $article->image;
 
         return response()->download($pathToFile);
@@ -202,13 +196,18 @@ class ArticlesController extends Controller
      * @param  \App\Models\Article  $article
      * @return \Illuminate\Http\Response
      */
-    public function update(ArticlesRequest $request, Article $article)
+    public function update(Request $request, Article $article)
     {
-        $article->update([
-            'title' => $request->input('title'),
-            'content' => $request->input('content')
+        $request = $request->validate([
+            'title' => 'required|max:255|unique:articles,title,' . $article->id,
+            'content' => 'required',
         ]);
-     
+
+        $article->update([
+            'title' => $request['title'],
+            'content' => $request['content'],
+        ]);
+
         return new ArticleResource($article);
     }
 
@@ -220,8 +219,7 @@ class ArticlesController extends Controller
      */
     public function destroy(Article $article)
     {
-        if($article->image)
-        {
+        if ($article->image) {
             $path = 'images/' . $article->image;
             File::delete($path);
         }
