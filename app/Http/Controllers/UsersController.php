@@ -116,12 +116,10 @@ class UsersController extends Controller
 
         $token = $user->createToken(time())->plainTextToken;
 
-        $response = [
+        return response([
             'data' => new UserResource($user),
             'token' => $token,
-        ];
-
-        return response($response, 200);
+        ], 200);
     }
 
     public function logout(User $user)
