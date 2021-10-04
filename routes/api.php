@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\CodeController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,12 @@ Route::prefix('v1')->group(function() {
     Route::post('/users', [UsersController::class, 'store']);
 
     Route::post('/login', [UsersController::class, 'login']);
+
+    Route::post('/reset-password/{email}', [CodeController::class, 'resetPasswordCode']);
+
+    Route::post('/check-code/{user}', [CodeController::class, 'checkCode']);
+
+    Route::post('/reset-password/users/{id}', [UsersController::class, 'resetPassword']);
 });
 
 Route::middleware('auth:sanctum')->prefix('v1')->group(function() {

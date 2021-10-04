@@ -49,4 +49,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Article::class);
     }
+
+    public function pastPasswords()
+    {
+        return $this->hasMany(PastPassword::class);
+    }
 }

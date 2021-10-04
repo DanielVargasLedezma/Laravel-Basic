@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
+use App\Http\Requests\PasswordResetRequest;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UsersRequest;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Models\User;
 
 class UsersController extends Controller
 {
@@ -33,7 +34,7 @@ class UsersController extends Controller
     public function store(UsersRequest $request)
     {
         $request->validated();
-        
+
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -51,7 +52,7 @@ class UsersController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user); 
+        return new UserResource($user);
     }
 
 
@@ -71,7 +72,7 @@ class UsersController extends Controller
         $user->update([
             'name' => $request->input('name'),
         ]);
-     
+
         return new UserResource($user);
     }
 
@@ -96,18 +97,16 @@ class UsersController extends Controller
             ->first();
 
         #    ['password', '=' , bcrypt($request->input('password'))],
-        
-        
-        if(!$user)
-        {
+
+
+        if (!$user) {
             return response([
                 'status' => 'error',
                 'errorMessage' => 'There is not any user registered with that email',
             ], 401);
         }
 
-        if(!Hash::check($request->input('password'), $user->password))
-        {
+        if (!Hash::check($request->input('password'), $user->password)) {
             return response([
                 'status' => 'error',
                 'errorMessage' => 'Wrong password',
@@ -130,5 +129,35 @@ class UsersController extends Controller
             'status' => 'succeed',
             'message' => 'Logged out'
         ], 200);
+    }
+
+    /**
+     * Changes the password of the User
+     *
+     * @param  \App\Models\User  $user
+     * @param  \Illuminate\Http\PasswordResetRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function resetPassword(PasswordResetRequest $request, User $user)
+    {
+        $request->validated();
+
+        $pastPasswords = $user->pastPasswords();
+
+        foreach ($pastPasswords as $pastPassword)
+        {
+            if(Hash::check($request->input('password'), $pastPassword->password)){
+                return response([
+                    'message' => 'Passwords can not be the same as past ones',
+                ]);
+            }
+
+        }
+
+        $user->update([
+            'password' => bcrypt($request->input('password')),
+        ]);
+
+        return new UserResource($user);
     }
 }
