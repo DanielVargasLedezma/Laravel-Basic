@@ -86,9 +86,13 @@ class CodeController extends Controller
         //
     }
 
-    public function resetPasswordCode($email)
+    public function resetPasswordCode(Request $request)
     {
-        $user = User::where('email', $email)
+        $fields = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $fields['email'])
             ->first();
 
         if (!$user) {
@@ -101,7 +105,7 @@ class CodeController extends Controller
 
         Code::create([
             'user_id' => $user->id,
-            'code' => $code,
+            'code' =>  bcrypt($code),
         ]);
 
         CodeGen::sendMail($user, $code);
@@ -122,23 +126,20 @@ class CodeController extends Controller
             'code' => 'numeric'
         ]);
 
-        $code = Code::where('code', $fields['code']);
+        $code = Code::where('code', bcrypt($fields['code']))
+            ->latest();
 
-        if(!$code)
-        {
+        if (!$code) {
             return response([
                 'message' => 'Wrong code',
             ], 401);
         }
 
-        if($code->user_id === $user->id)
-        {
+        if ($code->user_id === $user->id) {
             return response([
                 'user' => $user,
             ], 200);
-        }
-        else
-        {
+        } else {
             return response([
                 'message' => 'Incorrect user',
             ], 401);
